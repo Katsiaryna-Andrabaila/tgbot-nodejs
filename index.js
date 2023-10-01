@@ -1,33 +1,77 @@
 import pkg from "dotenv";
 const { config } = pkg;
 import Bot from "node-telegram-bot-api";
+import { againOptions } from "./game-options.js";
+import { startGame } from "./start-game.js";
 config();
 
 const token = process.env.TOKEN;
 
 const bot = new Bot(token, { polling: true });
 
-bot.on("message", async (message) => {
-  const text = message.text;
-  const chatId = message.chat.id;
+const chats = {};
 
-  switch (text) {
-    case "/start":
-      await bot.sendSticker(
+const start = () => {
+  bot.setMyCommands([
+    { command: "/start", description: "Start command" },
+    { command: "/info", description: "Command to get user's full name" },
+    { command: "/game", description: "Game to guess a number" },
+  ]);
+
+  bot.on("message", async (message) => {
+    const { text } = message;
+    const chatId = message.chat.id;
+
+    switch (text) {
+      case "/start":
+        await bot.sendSticker(
+          chatId,
+          "https://cdn.tlgrm.app/stickers/85b/9a3/85b9a330-80ac-4e5d-a7b7-d63f5fab2e6b/96/1.webp"
+        );
+        return bot.sendMessage(chatId, "Welcome to AntiSemeika bot!");
+
+      case "/info":
+        return bot.sendMessage(
+          chatId,
+          `Your name is ${message.from.first_name} ${
+            message.from.last_name || " "
+          }`
+        );
+
+      case "/game":
+        return startGame(chatId);
+
+      default:
+        return bot.sendMessage(
+          chatId,
+          "I don't understand you, try one more time!"
+        );
+    }
+  });
+
+  bot.on("callback_query", async (message) => {
+    const { data } = message;
+    const chatId = message.message.chat.id;
+
+    if (data === "/again") {
+      return startGame(chatId);
+    }
+
+    if (data === chats[chatId]) {
+      return bot.sendMessage(
         chatId,
-        "https://cdn.tlgrm.app/stickers/85b/9a3/85b9a330-80ac-4e5d-a7b7-d63f5fab2e6b/96/1.webp"
+        `Congratulations! You guessed right number ${data}!`,
+        againOptions
       );
-      await bot.sendMessage(chatId, "Welcome to AntiSemeika bot!");
-      break;
-    case "/info":
-      await bot.sendMessage(
+    } else {
+      console.log(data);
+      return bot.sendMessage(
         chatId,
-        `Your name is ${message.from.first_name} ${
-          message.from.last_name || " "
-        }`
+        `Unfortunately, you didn't guess, it was ${chats[chatId]}...`,
+        againOptions
       );
-      break;
-    default:
-      await bot.sendMessage(chatId, `You wrote ${text}`);
-  }
-});
+    }
+  });
+};
+
+start();
