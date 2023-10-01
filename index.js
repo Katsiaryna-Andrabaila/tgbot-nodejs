@@ -23,7 +23,7 @@ bot.on("message", async (message) => {
       await bot.sendMessage(
         chatId,
         `Your name is ${message.from.first_name} ${
-          message.from.last_name | " "
+          message.from.last_name || " "
         }`
       );
       break;
