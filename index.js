@@ -1,15 +1,14 @@
-import pkg from "dotenv";
-const { config } = pkg;
 import Bot from "node-telegram-bot-api";
 import { againOptions } from "./game-options.js";
 import { startGame } from "./start-game.js";
+import pkg from "dotenv";
+import { chats } from "./chats.js";
+const { config } = pkg;
 config();
 
 const token = process.env.TOKEN;
 
-const bot = new Bot(token, { polling: true });
-
-const chats = {};
+export const bot = new Bot(token, { polling: true });
 
 const start = () => {
   bot.setMyCommands([
@@ -57,14 +56,13 @@ const start = () => {
       return startGame(chatId);
     }
 
-    if (data === chats[chatId]) {
+    if (Number(data) === chats[chatId]) {
       return bot.sendMessage(
         chatId,
         `Congratulations! You guessed right number ${data}!`,
         againOptions
       );
     } else {
-      console.log(data);
       return bot.sendMessage(
         chatId,
         `Unfortunately, you didn't guess, it was ${chats[chatId]}...`,
