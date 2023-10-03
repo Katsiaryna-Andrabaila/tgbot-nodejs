@@ -1,8 +1,8 @@
 import Bot from "node-telegram-bot-api";
-import { againOptions } from "./game-options.js";
-import { startGame } from "./start-game.js";
+import { againOptions } from "./scripts/game-options.js";
+import { startGame } from "./scripts/start-game.js";
 import pkg from "dotenv";
-import { chats } from "./chats.js";
+import { chats } from "./scripts/chats.js";
 const { config } = pkg;
 config();
 

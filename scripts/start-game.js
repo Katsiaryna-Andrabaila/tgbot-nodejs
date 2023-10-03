@@ -1,6 +1,6 @@
 import { gameOptions } from "./game-options.js";
 import { chats } from "./chats.js";
-import { bot } from "./index.js";
+import { bot } from "../index.js";
 
 export const startGame = async (id) => {
   await bot.sendMessage(
